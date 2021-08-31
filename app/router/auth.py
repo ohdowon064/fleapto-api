@@ -54,7 +54,7 @@ async def login(user_info: UserLogin):
     if not user_info.email or not user_info.pw:
         return JSONResponse(status_code=400, content=dict(msg="Email ans PW must be provided"))
 
-    if (user := User.get_by_email(email=user_info.email)) is None:
+    if (user := await User.get_by_email(email=user_info.email)) is None:
         return JSONResponse(status_code=400, content=dict(msg="NO_MATCH_USER"))
 
     is_verified = bcrypt.checkpw(user_info.pw.encode("utf-8"), user.pw.encode("utf-8"))
@@ -69,7 +69,7 @@ async def login(user_info: UserLogin):
 
 
 async def is_email_exist(email: str) -> bool:
-    if User.get_by_email(email):
+    if await User.get_by_email(email):
         return True
     return False
 

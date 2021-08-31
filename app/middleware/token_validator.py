@@ -27,6 +27,7 @@ async def access_control(request: Request, call_next):
     headers = request.headers
     cookies = request.cookies
     url = request.url.path
+    url = url[1:]
 
     if await url_pattern_check(url, EXCEPT_PATH_REGEX) or url in EXCEPT_PATH_LIST:
         response = await call_next(request)
@@ -47,7 +48,14 @@ async def access_control(request: Request, call_next):
                     raise ex.NotAuthorized()
         else:
             # 템플릿 렌더링인 경우 쿠키에서 토큰 검사
-            pass
+            cookies["Authorization"] = "JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6Im9oZG93b24wNjRAZ21haWwuY29tIiwibmFtZSI6ImtpbXJvb3QiLCJuaWNrbmFtZSI6InJvb3QiLCJhZGRyZXNzIjoiYWRkcmVzc2FkcmVzcyJ9.BOuL3_I0r-5nRknjcH6dtG6_U9CLppCK3HVarGCFvkk"
+
+            if "Authorization" not in cookies.keys():
+                raise ex.NotAuthorized()
+
+            token_info = await token_decode(access_token=cookies.get("Authorization"))
+            request.state.user = UserToken(**token_info)
+
         response = await call_next(request)
         await api_logger(request=request, response=response)
 

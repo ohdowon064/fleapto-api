@@ -3,7 +3,7 @@ import logging
 from time import time
 
 from fastapi.logger import logger
-from starlette.requests import Request
+from fastapi.requests import Request
 
 from app.utils.date_utils import D
 
@@ -13,7 +13,7 @@ async def api_logger(request: Request, response=None, error=None):
     t = time() - request.state.start
     status_code = error.status_code if error else response.status_code
     error_log = None
-    user = request.status.user
+    user = request.state.user
     body = await request.body()
     if error:
         if request.state.inspect:
@@ -34,8 +34,8 @@ async def api_logger(request: Request, response=None, error=None):
     user_log = dict(
         client=request.state.ip,
         name=user.name if user and user.name else None,
-        email=user.email,
-        address=user.address
+        email=user.email if user and user.email else None,
+        address=user.address if user and user.address else None
     )
 
     log_dict = dict(
