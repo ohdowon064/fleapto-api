@@ -65,6 +65,7 @@ async def login(user_info: UserLogin):
     jwt_token = create_access_token(
         data=UserToken(**user).dict(exclude={'pw', 'created_at'})
     )
+    print(jwt_token)
     token = dict(Authorization=f"JWT {jwt_token}")
     return token
 

@@ -39,6 +39,7 @@ async def access_control(request: Request, call_next):
             # api인 경우 헤더로 토큰 검사
             if "authorization" in headers.keys():
                 token_info = await token_decode(access_token=headers.get("Authorization"))
+                print(token_info)
                 token_info["_id"] = token_info["id"]
                 request.state.user = UserToken(**token_info)
 
