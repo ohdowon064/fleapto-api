@@ -31,9 +31,9 @@ class DatabaseInitializer:
         self.database_name = config("DB_NAME").format(STAGE=stage)
         self.database_url = config("DB_URL").format(DB_NAME=self.database_name)
 
-        logging.info(f"현재 {STAGE}모드로 실행중입니다.....")
-        logging.info(f"{DB_NAME} 데이터베이스에 연결 중입니다.....")
-        logging.info(f"{DB_URL} 엔드포인트.....")
+        print(f"현재 {STAGE}모드로 실행중입니다.....")
+        print(f"{DB_NAME} 데이터베이스에 연결 중입니다.....")
+        print(f"{DB_URL} 엔드포인트.....")
 
         @app.on_event("startup")
         async def startup():

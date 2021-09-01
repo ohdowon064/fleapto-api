@@ -33,7 +33,7 @@ async def register(reg_info: UserRegister):
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=dict(msg="Email already exists."))
 
     hash_pw = bcrypt.hashpw(reg_info.pw.encode("utf-8"), bcrypt.gensalt())
-    new_user = User.create(
+    new_user = await User.create(
         UserSchema(
             email = reg_info.email,
             name = reg_info.name,
@@ -44,9 +44,10 @@ async def register(reg_info: UserRegister):
     )
 
     jwt_token = create_access_token(
-        data=UserToken.from_orm(new_user).dict(exclude={"pw"})
+        data=UserToken(**new_user).dict(exclude={"pw", "created_at"})
     )
     token = dict(Authorization=f"JWT {jwt_token}")
+
     return token
 
 @router.post("/login", status_code=200, response_model=Token)
@@ -57,12 +58,12 @@ async def login(user_info: UserLogin):
     if (user := await User.get_by_email(email=user_info.email)) is None:
         return JSONResponse(status_code=400, content=dict(msg="NO_MATCH_USER"))
 
-    is_verified = bcrypt.checkpw(user_info.pw.encode("utf-8"), user.pw.encode("utf-8"))
+    is_verified = bcrypt.checkpw(user_info.pw.encode("utf-8"), user['pw'].encode("utf-8"))
     if not is_verified:
         return JSONResponse(status_code=400, content=dict(msg="NO_MATCH_USER"))
 
     jwt_token = create_access_token(
-        data=UserToken.from_orm(user).dict(exclude={'pw'})
+        data=UserToken(**user).dict(exclude={'pw', 'created_at'})
     )
     token = dict(Authorization=f"JWT {jwt_token}")
     return token

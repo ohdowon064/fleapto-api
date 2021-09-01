@@ -27,7 +27,6 @@ async def access_control(request: Request, call_next):
     headers = request.headers
     cookies = request.cookies
     url = request.url.path
-    url = url[1:]
 
     if await url_pattern_check(url, EXCEPT_PATH_REGEX) or url in EXCEPT_PATH_LIST:
         response = await call_next(request)
@@ -38,14 +37,16 @@ async def access_control(request: Request, call_next):
     try:
         if url.startswith("/api"):
             # api인 경우 헤더로 토큰 검사
-            if "Authorization" in headers.keys():
+            if "authorization" in headers.keys():
                 token_info = await token_decode(access_token=headers.get("Authorization"))
+                token_info["_id"] = token_info["id"]
                 request.state.user = UserToken(**token_info)
 
             # 토큰 없음
             else:
                 if "Authorization" not in headers.keys():
                     raise ex.NotAuthorized()
+
         else:
             # 템플릿 렌더링인 경우 쿠키에서 토큰 검사
             cookies["Authorization"] = "JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6Im9oZG93b24wNjRAZ21haWwuY29tIiwibmFtZSI6ImtpbXJvb3QiLCJuaWNrbmFtZSI6InJvb3QiLCJhZGRyZXNzIjoiYWRkcmVzc2FkcmVzcyJ9.BOuL3_I0r-5nRknjcH6dtG6_U9CLppCK3HVarGCFvkk"

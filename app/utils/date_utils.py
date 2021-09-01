@@ -5,8 +5,8 @@ class D:
     def __init__(self, *args):
         self.utcnow = datetime.utcnow()
         self.timedelta = 0
-        self.date_format = "%Y/%m/%d"
-        self.datetime_format = "%Y/%m/%d %H:%M:%S"
+        self.date_format = "%Y-%m-%d"
+        self.datetime_format = "%Y-%m-%d %H:%M:%S"
 
     @classmethod
     def datetime(cls, diff: int = 0) -> datetime:

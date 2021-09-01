@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 
 class UserRegister(BaseModel):
@@ -15,20 +15,11 @@ class UserLogin(BaseModel):
 
 
 class UserToken(BaseModel):
-    id: str = None
+    id: str = Field(None, alias="_id")
     email: str = None
     name: str = None
     nickname: str = None
     address: str = None
-
-    class Config:
-        orm_mode = True
-
-
-class UserMe(BaseModel):
-    id: str = None
-    email: str = None
-    name: str = None
 
 
 class Token(BaseModel):

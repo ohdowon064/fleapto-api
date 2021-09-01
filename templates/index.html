@@ -1,24 +1,11 @@
-from datetime import datetime
-
-from fastapi import APIRouter, status, Response, Request
-from starlette.responses import HTMLResponse
-from starlette.templating import Jinja2Templates
-
-router = APIRouter()
-
-
-@router.get("/", response_class=HTMLResponse)
-async def index():
-    current_html = """
-    <!DOCTYPE html>
+<!DOCTYPE html>
     <html lang="ko">
     <head>
         <meta charset="UTF-8">
         <title>clock1</title>
     </head>
     <body>
-        <h1>Fleapto API Server Time</h1>
-        <h2 id="clock" style="color:black;">clock</h1>
+        <h1 id="clock" style="color:black;">clock</h1>
 
         <script>
             var Target = document.getElementById("clock");
@@ -35,7 +22,7 @@ async def index():
                 var seconds = time.getSeconds();
 
                 Target.innerText =
-                `KST ${month + 1}월 ${date}일 ${week[day]}요일 ` +
+                `${month + 1}월 ${date}일 ${week[day]}요일 ` +
                 `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
 
             }
@@ -44,5 +31,3 @@ async def index():
         </script>
     </body>
     </html>
-    """
-    return HTMLResponse(content=current_html, status_code=200)
