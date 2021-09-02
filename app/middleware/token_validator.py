@@ -1,5 +1,6 @@
 import re
 import time
+from os import environ
 
 import jwt
 from jwt import ExpiredSignatureError, DecodeError
@@ -12,6 +13,7 @@ from app.errors.exceptions import APIException
 from app.model import UserToken
 
 from app.utils.date_utils import D
+from app.consts import ROOT_PATH
 from decouple import config
 
 from app.utils.logger import api_logger
@@ -26,7 +28,7 @@ async def access_control(request: Request, call_next):
     request.state.ip = ip.split(",")[0] if "," in ip else ip
     headers = request.headers
     cookies = request.cookies
-    url = request.url.path
+    url = request.url.path.replace(ROOT_PATH, "")
 
     if await url_pattern_check(url, EXCEPT_PATH_REGEX) or url in EXCEPT_PATH_LIST:
         response = await call_next(request)
@@ -39,7 +41,6 @@ async def access_control(request: Request, call_next):
             # api인 경우 헤더로 토큰 검사
             if "authorization" in headers.keys():
                 token_info = await token_decode(access_token=headers.get("Authorization"))
-                print(token_info)
                 token_info["_id"] = token_info["id"]
                 request.state.user = UserToken(**token_info)
 
@@ -50,7 +51,7 @@ async def access_control(request: Request, call_next):
 
         else:
             # 템플릿 렌더링인 경우 쿠키에서 토큰 검사
-            cookies["Authorization"] = "JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6Im9oZG93b24wNjRAZ21haWwuY29tIiwibmFtZSI6ImtpbXJvb3QiLCJuaWNrbmFtZSI6InJvb3QiLCJhZGRyZXNzIjoiYWRkcmVzc2FkcmVzcyJ9.BOuL3_I0r-5nRknjcH6dtG6_U9CLppCK3HVarGCFvkk"
+            cookies["Authorization"] = "JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjYxMmY0YjkzMmYxMjM2ZWZmNWQ1YzIzYSIsImVtYWlsIjoicm9vdEBleGFtcGxlLmNvbSIsIm5hbWUiOiJyb290Iiwibmlja25hbWUiOiJyb290IiwiYWRkcmVzcyI6InJvb3QifQ.92wubFWw8djzIVID_wbutAaOmVVYWtGjbDjHAMwY4ws"
 
             if "Authorization" not in cookies.keys():
                 raise ex.NotAuthorized()

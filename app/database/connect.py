@@ -7,9 +7,8 @@ from decouple import config
 from fastapi import FastAPI
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
-STAGE = environ.get("STAGE", "local")
-DB_NAME = config("DB_NAME").format(STAGE=STAGE)
-DB_URL = config("DB_URL").format(DB_NAME=DB_NAME)
+from app.consts import STAGE
+
 
 class DatabaseInitializer:
     def __init__(self, app: FastAPI = None, **kwargs):
@@ -20,20 +19,19 @@ class DatabaseInitializer:
         if app is not None:
             self.init_app(app=app, *kwargs)
 
-    def init_app(self, app: FastAPI, **kwargs):
+    def init_db(self, app: FastAPI, **kwargs):
         """
         DB 초기화 함수
         :param app: FastAPI 인스턴스
         :param kwargs:
         :return:
         """
-        stage = kwargs.get("STAGE", "local")
-        self.database_name = config("DB_NAME").format(STAGE=stage)
+        self.database_name = config("DB_NAME").format(STAGE=STAGE)
         self.database_url = config("DB_URL").format(DB_NAME=self.database_name)
 
         print(f"현재 {STAGE}모드로 실행중입니다.....")
-        print(f"{DB_NAME} 데이터베이스에 연결 중입니다.....")
-        print(f"{DB_URL} 엔드포인트.....")
+        print(f"{self.database_name} 데이터베이스에 연결 중입니다.....")
+        print(f"{self.database_url} 엔드포인트.....")
 
         @app.on_event("startup")
         async def startup():
@@ -44,6 +42,7 @@ class DatabaseInitializer:
         async def shutdown():
             self._client.close()
             logging.info("DB disconnected")
+
 
     def get_db(self) -> AsyncIOMotorDatabase:
         """

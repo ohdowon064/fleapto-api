@@ -2,6 +2,8 @@ service: fleapto-api
 
 configValidationMode: error
 variablesResolutionMode: 20210326
+useDotenv: true
+
 package:
   individually: true
 
@@ -30,13 +32,12 @@ functions:
     package:
       patterns:
         - "app"
-        - "main.py"
         - ".env"
+        - "main.py"
         - "!requirements.txt"
         - "!package.json"
         - "!package-lock.json"
         - "!.serverless/**"
-        - "!venv/**"
         - "!node_modules/**"
 
     handler: main.handler

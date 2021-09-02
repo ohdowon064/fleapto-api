@@ -10,6 +10,8 @@ from starlette.middleware.cors import CORSMiddleware
 from app.database.connect import connection
 from app.middleware.token_validator import access_control
 from app.middleware.trusted_hosts import TrustedHostMiddleware
+from app.consts import ROOT_PATH, STAGE
+
 from app.router import index, auth, users
 
 API_KEY_HEADER = APIKeyHeader(name="Authorization", auto_error=False)
@@ -19,16 +21,12 @@ def create_app():
     앱 함수 실행
     :return:
     """
-    # 환경변수 체크
-    STAGE = environ.get("STAGE", "local")
-    root_path = f"/{STAGE}" if STAGE and STAGE != "local" else ""
 
     # 앱 생성
-    app = FastAPI(title="Fleato API", root_path=root_path)
-    print("앱이 생성되었습니다.")
+    app = FastAPI(title="Fleato API", root_path=ROOT_PATH)
 
     # 데이터베이스 초기화
-    connection.init_app(app, STAGE=STAGE)
+    connection.init_db(app)
 
     # 미들웨어 정의
     app.add_middleware(middleware_class=BaseHTTPMiddleware, dispatch=access_control)
@@ -47,7 +45,6 @@ def create_app():
     app.include_router(users.router, tags=["Users"], prefix="/api", dependencies=[Depends(API_KEY_HEADER)])
 
     return app
-
 
 app = create_app()
 handler = Mangum(app)

@@ -14,7 +14,7 @@ async def index():
     <html lang="ko">
     <head>
         <meta charset="UTF-8">
-        <title>clock1</title>
+        <title>Fleapto Time</title>
     </head>
     <body>
         <h1>Fleapto API Server Time</h1>
