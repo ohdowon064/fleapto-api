@@ -12,7 +12,7 @@ from app.middleware.token_validator import access_control
 from app.middleware.trusted_hosts import TrustedHostMiddleware
 from app.consts import ROOT_PATH, STAGE
 
-from app.router import index, auth, users
+from app.router import index, auth, users, products
 
 API_KEY_HEADER = APIKeyHeader(name="Authorization", auto_error=False)
 
@@ -37,12 +37,13 @@ def create_app():
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"], except_path=["/health"])
+    # app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"], except_path=["/health"])
 
     # 라우터 정의
     app.include_router(index.router, tags=["Root"])
     app.include_router(auth.router, tags=["Authentication"], prefix="/api")
     app.include_router(users.router, tags=["Users"], prefix="/api", dependencies=[Depends(API_KEY_HEADER)])
+    app.include_router(products.router, tags=["Products"], prefix="/api", dependencies=[Depends(API_KEY_HEADER)])
 
     return app
 

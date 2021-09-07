@@ -21,5 +21,9 @@ class D:
         return str(cls.kstnow().strftime(cls().datetime_format))
 
     @classmethod
+    def datetimenum(cls):
+        return int(cls.kstnow().strftime("%Y%m%d%H%M%S%f"))
+
+    @classmethod
     def str2date(cls, str_date: str) -> date:
         return datetime.strptime(str_date, cls().date_format)

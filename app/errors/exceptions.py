@@ -62,3 +62,13 @@ class TokenDecodeEx(APIException):
             code=f"{StatusCode.HTTP_400}{'2'.zfill(4)}",
             ex=ex,
         )
+
+class NotFoundEx(APIException):
+    def __init__(self, ex: Exception = None):
+        super().__init__(
+            status_code=StatusCode.HTTP_404,
+            msg="존재하지 않는 접근입니다.",
+            detail="Not Found Exception",
+            code=f"{StatusCode.HTTP_404}{'3'.zfill(4)}",
+            ex=ex
+        )

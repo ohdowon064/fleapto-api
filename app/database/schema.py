@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 from bson import ObjectId
@@ -31,7 +32,7 @@ class BaseConfig:
 
 class BaseSchema(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    created_at: datetime = Field(default=D.kstnow())
+    created_at: datetime = Field(default_factory=D.kstnow)
 
 
 class UserSchema(BaseSchema):
@@ -51,22 +52,20 @@ class UserSchema(BaseSchema):
 
 
 class ProductSchema(BaseSchema):
-    # 이름, 실제주소, 계좌주소, 사진, 올린사람정보, 가격, 판매여부
     product_name: str = Field(...)
-    location: str = Field(...)
-    address: str = Field(...)
-    image: str = Field(...)
+    description: str = Field(...)
     seller: UserToken = Field(...)
-    buyer: UserToken = Field(...)
-    price: float = Field(...)
-    is_saled: bool = Field(...)
+    buyer: UserToken = Field(default=None)
+    is_purchased: bool = Field(default=False)
+    purchased_time: datetime = Field(default=None)
+    img_url: str = Field(...)
 
     class Config(BaseConfig):
         schema_extra = {
-            "example" :
+            "example" : {
+                "product_name" : "반포 아파트",
+                "seller" : {
+                    "email" : "example@gmail.com"
+                }
+            }
         }
-
-
-
-class TransactionSchema(BaseSchema):
-    pass
