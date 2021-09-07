@@ -24,4 +24,3 @@ class UserToken(BaseModel):
 
 class Token(BaseModel):
     Authorization: str = None
-
