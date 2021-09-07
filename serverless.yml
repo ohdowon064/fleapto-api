@@ -1,6 +1,6 @@
 service: fleapto-api
 
-configValidationMode: error
+configValidationMode: errors
 variablesResolutionMode: 20210326
 useDotenv: true
 
