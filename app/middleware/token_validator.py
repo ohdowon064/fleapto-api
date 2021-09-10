@@ -13,7 +13,6 @@ from app.errors.exceptions import APIException
 from app.model import UserToken
 
 from app.utils.date_utils import D
-from app.consts import ROOT_PATH
 from decouple import config
 
 from app.utils.logger import api_logger
@@ -28,7 +27,8 @@ async def access_control(request: Request, call_next):
     request.state.ip = ip.split(",")[0] if "," in ip else ip
     headers = request.headers
     cookies = request.cookies
-    url = request.url.path.replace(ROOT_PATH, "")
+    root_path = request.scope.get("root_path")
+    url = request.url.path.replace(root_path, "")
 
     if await url_pattern_check(url, EXCEPT_PATH_REGEX) or url in EXCEPT_PATH_LIST:
         response = await call_next(request)

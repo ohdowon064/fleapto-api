@@ -1,7 +1,7 @@
 from fastapi.encoders import jsonable_encoder
 from motor.motor_asyncio import AsyncIOMotorDatabase, AsyncIOMotorCollection
 
-from app.database.connect import connection
+from app.database.connect import Mongo
 from app.database.schema import UserSchema
 from app.model import UserToken
 
@@ -11,7 +11,7 @@ class User:
     # user_coll: AsyncIOMotorCollection = db.get_collection("users")
 
     def __init__(self):
-        self.db: AsyncIOMotorDatabase = connection.get_db()
+        self.db: AsyncIOMotorDatabase = Mongo.get_db()
         self.user_coll: AsyncIOMotorCollection = self.db.get_collection("users")
 
     @classmethod
@@ -31,7 +31,6 @@ class User:
     @classmethod
     async def get_by_email(cls, email: str):
         user = await cls().user_coll.find_one({"email" : email})
-        print("반환값 타입", type(user))
         return user
 
     @classmethod

@@ -39,6 +39,7 @@ functions:
         - "!package-lock.json"
         - "!.serverless/**"
         - "!node_modules/**"
+        - "!venv/**"
 
     handler: main.handler
     environment:

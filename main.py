@@ -7,12 +7,12 @@ from mangum import Mangum
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.cors import CORSMiddleware
 
-from app.database.connect import connection
+from app.database.connect import Mongo
+
 from app.middleware.token_validator import access_control
 from app.middleware.trusted_hosts import TrustedHostMiddleware
-from app.consts import ROOT_PATH, STAGE
 
-from app.router import index, auth, users, products
+from app.router import index, auth, users, products, history
 
 API_KEY_HEADER = APIKeyHeader(name="Authorization", auto_error=False)
 
@@ -21,12 +21,14 @@ def create_app():
     앱 함수 실행
     :return:
     """
+    STAGE = environ.get("STAGE", "local")
+    ROOT_PATH = f"/{STAGE}" if STAGE and STAGE != "local" else ""
 
     # 앱 생성
     app = FastAPI(title="Fleato API", root_path=ROOT_PATH)
 
     # 데이터베이스 초기화
-    connection.init_db(app)
+    app.add_event_handler("shutdown", Mongo.disconnected_db)
 
     # 미들웨어 정의
     app.add_middleware(middleware_class=BaseHTTPMiddleware, dispatch=access_control)
@@ -44,6 +46,7 @@ def create_app():
     app.include_router(auth.router, tags=["Authentication"], prefix="/api")
     app.include_router(users.router, tags=["Users"], prefix="/api", dependencies=[Depends(API_KEY_HEADER)])
     app.include_router(products.router, tags=["Products"], prefix="/api", dependencies=[Depends(API_KEY_HEADER)])
+    app.include_router(history.router, tags=["history"], prefix="/api", dependencies=[Depends(API_KEY_HEADER)])
 
     return app
 
