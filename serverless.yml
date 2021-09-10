@@ -11,14 +11,18 @@ provider:
   name: aws
   runtime: python3.8
   region: ap-northeast-2
-  profile: logan
-  stage: dev
+  profile: venduster
+  stage: ${opt:stage, "dev"}
   lambdaHashingVersion: 20201221
 
 plugins:
   - serverless-python-requirements
+  - serverless-apigw-binary
 
 custom:
+  apigwBinary:
+    types:
+      - '*/*'
   pythonRequirements:
     dockerizePip: true
     layer:

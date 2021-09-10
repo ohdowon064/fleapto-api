@@ -30,6 +30,7 @@ class Product:
         product = ProductSchema(
             product_name=product_info.product_name,
             description=product_info.description,
+            price=product_info.price,
             seller=seller_info,
             img_url=obj_url
         )

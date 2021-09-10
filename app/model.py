@@ -33,6 +33,7 @@ class Token(BaseModel):
 class ProductRegister(BaseModel):
     product_name: str = None
     description: str = None
+    price: float = None
 
     @classmethod
     def __get_validators__(cls):
