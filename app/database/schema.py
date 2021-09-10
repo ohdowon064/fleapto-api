@@ -55,6 +55,7 @@ class UserSchema(BaseSchema):
 class ProductSchema(BaseSchema):
     product_name: str = Field(...)
     description: str = Field(...)
+    price: float = Field(...)
     seller: UserToken = Field(...)
     buyer: UserToken = Field(default=None)
     is_purchased: bool = Field(default=False)
@@ -70,10 +71,5 @@ class ProductSchema(BaseSchema):
                 }
             }
         }
-
-
-
-
-
 
 

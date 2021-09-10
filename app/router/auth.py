@@ -56,11 +56,11 @@ async def login(user_info: UserLogin):
         return JSONResponse(status_code=400, content=dict(msg="Email ans PW must be provided"))
 
     if (user := await User.get_by_email(email=user_info.email)) is None:
-        return JSONResponse(status_code=400, content=dict(msg="NO_MATCH_USER"))
+        return JSONResponse(status_code=404, content=dict(msg="NO_MATCH_USER"))
 
     is_verified = bcrypt.checkpw(user_info.pw.encode("utf-8"), user['pw'].encode("utf-8"))
     if not is_verified:
-        return JSONResponse(status_code=400, content=dict(msg="NO_MATCH_USER"))
+        return JSONResponse(status_code=404, content=dict(msg="NO_MATCH_USER"))
 
     jwt_token = create_access_token(
         data=UserToken(**user).dict(exclude={'pw', 'created_at'})

@@ -2,7 +2,7 @@ from fastapi import UploadFile
 from fastapi.encoders import jsonable_encoder
 from motor.motor_asyncio import AsyncIOMotorDatabase, AsyncIOMotorCollection
 
-from app.database.connect import connection
+from app.database.connect import Mongo
 from app.database.schema import ProductSchema
 from app.errors import exceptions
 from app.model import ProductRegister, UserToken
@@ -13,7 +13,7 @@ from app.utils.s3_utils import S3
 
 class Product:
     def __init__(self):
-        self.db: AsyncIOMotorDatabase = connection.get_db()
+        self.db: AsyncIOMotorDatabase = Mongo.get_db()
         self.product_coll: AsyncIOMotorCollection = self.db.get_collection("products")
 
 
@@ -77,3 +77,28 @@ class Product:
         updated_product = await cls().get_by_id(update_result["_id"])
 
         return updated_product
+
+    @classmethod
+    async def get_purchased_product(cls):
+        product_cursor = cls().product_coll.find({"is_purchased" : True})
+        product_list = [product async for product in product_cursor]
+        return product_list
+
+
+    @classmethod
+    async def get_sales_history(cls, seller_id):
+        product_cursor = cls().product_coll.find({
+            "seller._id" : seller_id,
+            "is_purchased" : True
+        })
+        product_list = [product async for product in product_cursor]
+        return product_list
+
+    @classmethod
+    async def get_purchase_history(cls, buyer_id):
+        product_cursor = cls().product_coll.find({
+            "is_purchased" : True,
+            "buyer._id" : buyer_id
+        })
+        product_list = [product async for product in product_cursor]
+        return product_list
