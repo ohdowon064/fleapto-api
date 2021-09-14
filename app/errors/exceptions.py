@@ -72,3 +72,23 @@ class NotFoundEx(APIException):
             code=f"{StatusCode.HTTP_404}{'3'.zfill(4)}",
             ex=ex
         )
+
+class CanNotDeleteProductEx(APIException):
+    def __init__(self, ex: Exception = None):
+        super().__init__(
+            status_code=StatusCode.HTTP_401,
+            msg="삭제할 수 있는 권한이 없습니다.",
+            detail="Can Not Delete Product",
+            code=f"{StatusCode.HTTP_401}{'4'.zfill(4)}",
+            ex=ex
+        )
+
+class FailToDeleteProductEx(APIException):
+    def __init__(self, product_id: str, ex: Exception = None):
+        super().__init__(
+            status_code=StatusCode.HTTP_500,
+            msg=f"서버에서 요청한 상품 {product_id}를 삭제하는데 실패했습니다.",
+            detail="Fail To Delete Product",
+            code=f"{StatusCode.HTTP_500}{'5'.zfill(4)}",
+            ex=ex
+        )

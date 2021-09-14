@@ -9,6 +9,7 @@ from app.model import ProductRegister, UserToken
 from app.repository.User import User
 from app.utils.date_utils import D
 from app.utils.s3_utils import S3
+from app.errors.exceptions import CanNotDeleteProductEx, FailToDeleteProductEx
 
 
 class Product:
@@ -103,3 +104,20 @@ class Product:
         })
         product_list = [product async for product in product_cursor]
         return product_list
+
+
+    @classmethod
+    async def delete(cls, product_id: str, request_id: str):
+        if (to_delete := await cls.get_by_id(id)) is None:
+            return None
+
+        seller_id = to_delete["seller"]["_id"]
+        if request_id != seller_id:
+            raise CanNotDeleteProductEx()
+
+        deleted_product = await cls().product_coll.delete_one({"_id" : to_delete["_id"]})
+
+        if deleted_product.deleted_count != 1:
+            raise FailToDeleteProductEx(product_id)
+
+        return deleted_product.deleted_count

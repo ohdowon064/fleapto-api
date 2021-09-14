@@ -38,3 +38,11 @@ async def update_product(request: Request, product_id: str):
     buyer = request.state.user
     updated_product = await Product.buy(product_id, buyer)
     return updated_product
+
+@router.delete("/product/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_product(request: Request, product_id: str):
+    user = request.state.user
+    deleted_count = await Product.delete(product_id, user.id)
+    return JSONResponse(
+        status_code=status.HTTP_204_NO_CONTENT,
+        content=dict(msg=f"{deleted_count}개의 상품을 성공적으로 삭제했습니다."))
