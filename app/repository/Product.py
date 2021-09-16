@@ -108,7 +108,7 @@ class Product:
 
     @classmethod
     async def delete(cls, product_id: str, request_id: str):
-        if (to_delete := await cls.get_by_id(id)) is None:
+        if (to_delete := await cls.get_by_id(product_id)) is None:
             return None
 
         seller_id = to_delete["seller"]["_id"]

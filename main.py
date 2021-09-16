@@ -10,7 +10,6 @@ from starlette.middleware.cors import CORSMiddleware
 from app.database.connect import Mongo
 
 from app.middleware.token_validator import access_control
-from app.middleware.trusted_hosts import TrustedHostMiddleware
 
 from app.router import index, auth, users, products, history
 

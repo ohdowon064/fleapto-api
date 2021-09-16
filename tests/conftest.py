@@ -6,7 +6,6 @@ from os import environ
 import bcrypt
 import pytest
 from httpx import AsyncClient
-from starlette.testclient import TestClient
 
 from app.database.connect import Mongo
 from app.database.schema import UserSchema
