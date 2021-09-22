@@ -1,38 +1,10 @@
-import json
 from datetime import datetime
+from enum import Enum
 
-from bson import ObjectId
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import EmailStr, Field
 
+from app.database.base_schema import BaseSchema
 from app.model import UserToken
-from app.utils.date_utils import D
-
-
-class PyObjectId(ObjectId):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, value):
-        if not ObjectId.is_valid(value):
-            raise ValueError("Invalid objectid")
-        return ObjectId(value)
-
-    @classmethod
-    def __modify_schema__(cls, field_schema):
-        field_schema.update(type="string")
-
-
-class BaseConfig:
-    allow_population_by_field_name = True
-    arbitrary_types_allowed = True
-    json_encoders = {ObjectId: str}
-
-
-class BaseSchema(BaseModel):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    created_at: datetime = Field(default_factory=D.kstnow)
 
 
 class UserSchema(BaseSchema):
@@ -42,14 +14,12 @@ class UserSchema(BaseSchema):
     nickname: str = Field(...)
     address: str = Field(...)
 
-    class Config(BaseConfig):
-        schema_extra = {
-            "example": {
-                "email": "user111@gmail.com",
-                "name" : "kimuser"
-            }
-        }
 
+class State(str, Enum):
+    SALE = 'SALE'
+    PENDING = 'PENDING'
+    REJECTED = 'REJECTED'
+    SOLD = 'SOLD'
 
 class ProductSchema(BaseSchema):
     product_name: str = Field(...)
@@ -57,18 +27,15 @@ class ProductSchema(BaseSchema):
     price: float = Field(...)
     seller: UserToken = Field(...)
     buyer: UserToken = Field(default=None)
-    is_purchased: bool = Field(default=False)
+    state: State = Field(default=State.SALE) # is_purchased -> state
     purchased_time: datetime = Field(default=None)
     img_url: str = Field(...)
-
-    class Config(BaseConfig):
-        schema_extra = {
-            "example" : {
-                "product_name" : "반포 아파트",
-                "seller" : {
-                    "email" : "example@gmail.com"
-                }
-            }
-        }
+    seller_safe: bool = Field(...)
+    buyer_safe: bool = Field(default=False)
 
 
+class PendingSchema(BaseSchema):
+    product_id: str = Field(...)
+    buyer: UserToken = Field(...)
+    extra_price: float = Field(...)
+    state: State = Field(default=State.PENDING)

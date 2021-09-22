@@ -5,8 +5,8 @@ from starlette import status
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from app.database.schema import ProductSchema
-from app.model import ProductRegister
+from app.database.schema import ProductSchema, State
+from app.model import ProductRegister, ProductState
 from app.repository.Product import Product
 
 router = APIRouter()
@@ -34,9 +34,20 @@ async def get_product():
 
 
 @router.put("/product", status_code=200, response_model=ProductSchema)
-async def update_product(request: Request, product_id: str):
+async def update_product(request: Request, product_id: str, product_state: ProductState = Body(...)):
     buyer = request.state.user
-    updated_product = await Product.buy(product_id, buyer)
+    state = product_state.state
+
+    if state == State.PENDING:
+        updated_product = await Product.pending(product_id, buyer)
+    elif state == State.SOLD:
+        updated_product = await Product.buy(product_id, buyer)
+    elif state == State.REJECTED:
+        updated_product = await Product.reject(product_id)
+    else:
+        return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST,
+                            content="올바르지 않은 상태값입니다. SOLD, PENDING, REJECTED 중에 가능합니다.")
+
     return updated_product
 
 @router.delete("/product/{product_id}", status_code=status.HTTP_204_NO_CONTENT)

@@ -3,7 +3,7 @@ from fastapi.encoders import jsonable_encoder
 from motor.motor_asyncio import AsyncIOMotorDatabase, AsyncIOMotorCollection
 
 from app.database.connect import Mongo
-from app.database.schema import ProductSchema
+from app.database.schema import ProductSchema, State, PendingSchema
 from app.errors import exceptions
 from app.model import ProductRegister, UserToken
 from app.repository.User import User
@@ -33,6 +33,7 @@ class Product:
             description=product_info.description,
             price=product_info.price,
             seller=seller_info,
+            seller_safe=product_info.seller_safe,
             img_url=obj_url
         )
 
@@ -64,21 +65,77 @@ class Product:
         product = await cls().get_by_id(product_id)
 
         buyer_info = buyer.dict()
-        buyer_info["_id"] = buyer_info["id"]
+        buyer_info["_id"] = buyer_info.pop("id")
+
+        if product['state'] == State.PENDING:
+            pending_coll = cls().db.get_collection("pending")
+            pending = await pending_coll.find_one_and_update(
+                {"product_id": product_id}, {
+                    {"$set": {"state": State.SOLD}}
+                }
+            )
+
+        query = dict(purchased_time = str(D.kstnow()),
+                     state = State.SOLD,
+                     buyer=buyer_info)
 
         update_result = await cls().product_coll.find_one_and_update(
             {"_id" : product["_id"]}, {
-                "$set" : {
-                    "is_purchased" : True,
-                    "purchased_time" : str(D.kstnow()),
-                    "buyer" : buyer_info
-                }
+                "$set" : query
             }
         )
 
         updated_product = await cls().get_by_id(update_result["_id"])
 
         return updated_product
+
+    @classmethod
+    async def pending(cls, product_id: str, buyer: UserToken):
+        product = await cls().get_by_id(product_id)
+
+        update_result = await cls().product_coll.find_one_and_update(
+            {"_id" : product["_id"]}, {
+                "$set" : {"state" : State.PENDING}
+            }
+        )
+
+        updated_product = await cls().get_by_id(update_result["_id"])
+
+        buyer_info = buyer.dict()
+        buyer_info["_id"] = buyer_info.pop("id")
+
+        pending = PendingSchema(
+            product_id = product_id,
+            buyer = buyer,
+            extra_price = product["price"] * 0.05
+        )
+
+        pending_json = jsonable_encoder(pending)
+
+        pending_coll = cls().db.get_collection("pending")
+        inserted_pending = await pending_coll.insert_one(pending_json)
+
+        return updated_product
+
+
+    @classmethod
+    async def reject(cls, product_id):
+        pending_coll = cls().db.get_collection("pending")
+        pending = await pending_coll.find_one_and_update(
+            {"product_id": product_id}, {
+                "$set": {"state": State.REJECTED}
+            }
+        )
+
+        product = await cls().product_coll.find_one_and_update(
+            {"_id": product_id}, {
+                "$set": {"state": State.SALE}
+            }
+        )
+
+        return product
+
+
 
     @classmethod
     async def get_purchased_product(cls):

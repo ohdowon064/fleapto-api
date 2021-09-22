@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 from collections import Generator
 from os import environ
@@ -25,7 +26,7 @@ def app():
     environ['STAGE'] = 'test'
     return create_app()
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 async def client(app) -> Generator:
     async with AsyncClient(app=app, base_url="http://testserver") as _client:
         yield _client
@@ -76,10 +77,24 @@ async def login(create_user):
 
     return token
 
+@pytest.fixture(scope="function")
+async def db_product(client, login):
+    """
+    테스트전 상품 추가
+    :param login:
+    :return:
+    """
+    files = dict(file=open("./test.jpg", "rb"))
+    data = dict(product_name="test", description="test", price="1.25", seller_safe=True)
+    payload = dict(product_info=json.dumps(data))
+
+    res = await client.post("/api/product", files=files, data=payload, headers=login)
+    res_body = res.json()
+    return res_body
+
 
 async def clear_all_table_data(db):
     logging.info("Drop Test Database")
     coll_names = await db.list_collection_names()
     for coll_name in coll_names:
         await db.drop_collection(coll_name)
-

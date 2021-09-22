@@ -24,3 +24,4 @@ class Mongo:
         DB_NAME = config("DB_NAME").format(STAGE=STAGE)
         db = cls.db_client[DB_NAME]
         return db
+

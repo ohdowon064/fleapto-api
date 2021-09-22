@@ -1,5 +1,6 @@
 import json
 import logging
+import traceback
 from time import time
 
 from fastapi.logger import logger
@@ -17,20 +18,21 @@ async def api_logger(request: Request, response=None, error=None):
     # body = await request.json()
     body = None
     if error:
-        if request.state.inspect:
-            frame = request.state.inspect
-            error_file = frame.f_code.co_filename
-            error_func = frame.f_code.co_name
-            error_line = frame.f_lineno
-        else:
-            error_func = error_file = error_line = "UNKNOWN"
-
-        error_log = dict(
-            errorFunc=error_func,
-            location=f"{str(error_line)} line in {error_file}",
-            raised=str(error.__class__.__name__),
-            msg=str(error.ex)
-        )
+        error_log = traceback.format_exc()
+        # if request.state.inspect:
+        #     frame = request.state.inspect
+        #     error_file = frame.f_code.co_filename
+        #     error_func = frame.f_code.co_name
+        #     error_line = frame.f_lineno
+        # else:
+        #     error_func = error_file = error_line = "UNKNOWN"
+        #
+        # error_log = dict(
+        #     errorFunc=error_func,
+        #     location=f"{str(error_line)} line in {error_file}",
+        #     raised=str(error.__class__.__name__),
+        #     msg=str(error.ex)
+        # )
 
     user_log = dict(
         client=request.state.ip,
