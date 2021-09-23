@@ -30,10 +30,15 @@ class Token(BaseModel):
     Authorization: str = None
 
 
+class ProductState(BaseModel):
+    state: str = None
+
+
 class ProductRegister(BaseModel):
     product_name: str = None
     description: str = None
     price: float = None
+    seller_safe: bool = None
 
     @classmethod
     def __get_validators__(cls):

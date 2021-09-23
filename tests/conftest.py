@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 from collections import Generator
 from os import environ, getenv
@@ -79,6 +80,21 @@ async def login(create_user):
     token = dict(Authorization=f"JWT {access_token}")
 
     return token
+
+@pytest.fixture(scope="function")
+async def db_product(client, login):
+    """
+    테스트전 상품 추가
+    :param login:
+    :return:
+    """
+    files = dict(file=open("./test.jpg", "rb"))
+    data = dict(product_name="test", description="test", price="1.25", seller_safe=True)
+    payload = dict(product_info=json.dumps(data))
+
+    res = await client.post("/api/product", files=files, data=payload, headers=login)
+    res_body = res.json()
+    return res_body
 
 
 async def clear_all_table_data(db):

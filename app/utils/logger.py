@@ -18,25 +18,6 @@ async def api_logger(request: Request, response=None, error=None):
     # body = await request.json()
     body = None
     if error:
-        # print("에러에 대하여")
-        # print(error.__traceback__.tb_frame.f_lineno)
-        # print("에러로그:::", )
-
-        # if request.state.inspect:
-        #     frame = request.state.inspect
-        #     error_file = frame.f_code.co_filename
-        #     error_func = frame.f_code.co_name
-        #     error_line = frame.f_lineno
-        # else:
-        #     error_func = error_file = error_line = "UNKNOWN"
-        #
-        # error_log = dict(
-        #     errorFunc=error_func,
-        #     location=f"{str(error_line)} line in {error_file}",
-        #     raised=str(error.__class__.__name__),
-        #     msg=str(error.ex)
-        # )
-
         error_detail = traceback.format_exc()
 
     user_log = dict(
