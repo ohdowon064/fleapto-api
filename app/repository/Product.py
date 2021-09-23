@@ -17,7 +17,6 @@ class Product:
         self.db: AsyncIOMotorDatabase = Mongo.get_db()
         self.product_coll: AsyncIOMotorCollection = self.db.get_collection("products")
 
-
     @classmethod
     async def create(cls, file: UploadFile, product_info: ProductRegister, user):
         if (obj_url := S3.upload_file_to_bucket(

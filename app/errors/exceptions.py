@@ -92,3 +92,13 @@ class FailToDeleteProductEx(APIException):
             code=f"{StatusCode.HTTP_500}{'5'.zfill(4)}",
             ex=ex
         )
+
+class AlreadyExistEmailEx(APIException):
+    def __init__(self, email: str, ex: Exception = None):
+        super().__init__(
+            status_code=StatusCode.HTTP_400,
+            msg=f"{email}은 이미 존재하는 이메일입니다.",
+            detail="Already Exist Email",
+            code=f"{StatusCode.HTTP_400}{'6'.zfill(4)}",
+            ex=ex
+        )

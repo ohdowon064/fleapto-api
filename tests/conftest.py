@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from collections import Generator
-from os import environ
+from os import environ, getenv
 
 import bcrypt
 import pytest
@@ -14,6 +14,8 @@ from app.repository.User import User
 from app.router.auth import create_access_token
 from main import create_app
 
+delete_count = 0
+
 @pytest.fixture(scope="session")
 def event_loop():
     loop = asyncio.get_event_loop()
@@ -22,15 +24,17 @@ def event_loop():
 
 @pytest.fixture(scope="session")
 def app():
-    environ['STAGE'] = 'test'
+    # environ['STAGE'] = 'test'
     return create_app()
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 async def client(app) -> Generator:
     async with AsyncClient(app=app, base_url="http://testserver") as _client:
         yield _client
-    db = Mongo.get_db()
-    await clear_all_table_data(db)
+
+    if getenv("STAGE") == "test":
+        db = Mongo.get_db()
+        await clear_all_table_data(db)
 
 @pytest.fixture(scope="function")
 async def user_info():
@@ -78,8 +82,10 @@ async def login(create_user):
 
 
 async def clear_all_table_data(db):
+    global delete_count
+    delete_count += 1
+    print(f"delete database {delete_count}")
     logging.info("Drop Test Database")
     coll_names = await db.list_collection_names()
     for coll_name in coll_names:
         await db.drop_collection(coll_name)
-

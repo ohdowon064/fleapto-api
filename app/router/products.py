@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 from fastapi import APIRouter, UploadFile, File, Form, Body, Depends
@@ -15,7 +16,6 @@ router = APIRouter()
 async def create_product(request: Request,
                          product_info: ProductRegister,
                          file: UploadFile = File(...)):
-
     user = request.state.user
 
     if (created_product := await Product.create(file, product_info, user)) is None:

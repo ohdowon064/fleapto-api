@@ -1,4 +1,4 @@
-from os import environ
+from os import environ, getenv
 
 import uvicorn
 from fastapi import FastAPI, Depends
@@ -53,4 +53,6 @@ app = create_app()
 handler = Mangum(app)
 
 if __name__ == "__main__":
+    print("환경변수 출력")
+    print(getenv("STAGE"))
     uvicorn.run("main:app", host="localhost", port=8000, reload=True)

@@ -3,6 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase, AsyncIOMotorCollection
 
 from app.database.connect import Mongo
 from app.database.schema import UserSchema
+from app.errors.exceptions import AlreadyExistEmailEx
 from app.model import UserToken
 
 
@@ -19,8 +20,7 @@ class User:
         user_json = jsonable_encoder(user)
         inserted_user = await cls().user_coll.insert_one(user_json)
         new_user = await cls().user_coll.find_one({"_id" : inserted_user.inserted_id})
-        print("유저 디비저장완료")
-        
+
         return new_user
 
     @classmethod

@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 
 from decouple import config
 from app.database.schema import UserSchema
+from app.errors.exceptions import AlreadyExistEmailEx
 from app.model import Token, UserRegister, UserToken, UserLogin
 from app.repository.User import User
 from app.utils.date_utils import D
@@ -31,6 +32,7 @@ async def register(reg_info: UserRegister):
     is_exist = await is_email_exist(reg_info.email)
     if is_exist:
         return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content=dict(msg="Email already exists."))
+        # raise AlreadyExistEmailEx(reg_info.email)
 
     hash_pw = bcrypt.hashpw(reg_info.pw.encode("utf-8"), bcrypt.gensalt())
     new_user = await User.create(
