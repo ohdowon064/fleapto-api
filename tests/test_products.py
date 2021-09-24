@@ -15,6 +15,7 @@ async def test_create_product(client: AsyncClient, login):
     data = {
         "product_name": "테스트 프로덕트",
         "description": "설명설명설명",
+        "seller_safe": True,
         "price": 1.25
     }
     files = dict(
@@ -73,3 +74,50 @@ async def test_buy_product(client: AsyncClient, login, db_product):
 
     assert res.status_code == 200, res_body
     assert res_body["state"] == "SOLD"
+
+@pytest.mark.asyncio
+async def test_pending_buy_product(client: AsyncClient, login, db_product):
+    """
+    펜딩 물품 구매 테스트
+    :param client:
+    :param login:
+    :param db_product:
+    :return:
+    """
+    pending_state = dict(state="PENDING")
+    res = await client.put(f"/api/product?product_id={db_product['_id']}",
+                           json=pending_state,
+                           headers=login)
+    res_body = res.json()
+
+    assert res.status_code == 200, res_body
+    assert res_body['state'] == "PENDING"
+
+    buy_state = dict(state="SOLD")
+    res = await client.put(f"/api/product?product_id={db_product['_id']}",
+                           json=buy_state,
+                           headers=login)
+    res_body = res.json()
+
+    assert res.status_code == 200, res_body
+    assert res_body['state'] == 'SOLD'
+
+
+@pytest.mark.asyncio
+async def test_buyer_safe_or_not(client: AsyncClient, login, db_product):
+    """
+    buyer_safe 업데이트 테스트
+    :param client:
+    :param login:
+    :param db_product:
+    :return:
+    """
+
+    buyer_safe = True
+    product_id = db_product["_id"]
+
+    res = await client.put(f"/api/product/{product_id}?buyer_safe={buyer_safe}", headers=login)
+    res_body = res.json()
+
+    assert res.status_code == 200, res_body
+    assert res_body["buyer_safe"] == buyer_safe

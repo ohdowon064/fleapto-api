@@ -50,6 +50,15 @@ async def update_product(request: Request, product_id: str, product_state: Produ
 
     return updated_product
 
+@router.put("/product/{product_id}", status_code=200, response_model=ProductSchema)
+async def buyer_safe_or_not(request: Request, product_id: str, buyer_safe: bool):
+    buyer = request.state.user
+    product = await Product.buyer_safe_or_not(product_id, buyer_safe)
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content=product
+    )
+
 @router.delete("/product/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_product(request: Request, product_id: str):
     user = request.state.user

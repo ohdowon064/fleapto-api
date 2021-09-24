@@ -97,6 +97,7 @@ async def db_product(client, login):
     return res_body
 
 
+
 async def clear_all_table_data(db):
     global delete_count
     delete_count += 1

@@ -70,7 +70,7 @@ class Product:
             pending_coll = cls().db.get_collection("pending")
             pending = await pending_coll.find_one_and_update(
                 {"product_id": product_id}, {
-                    {"$set": {"state": State.SOLD}}
+                    "$set": {"state": State.SOLD}
                 }
             )
 
@@ -147,7 +147,7 @@ class Product:
     async def get_sales_history(cls, seller_id):
         product_cursor = cls().product_coll.find({
             "seller._id" : seller_id,
-            "is_purchased" : True
+            "state" : "SOLD"
         })
         product_list = [product async for product in product_cursor]
         return product_list
@@ -155,8 +155,8 @@ class Product:
     @classmethod
     async def get_purchase_history(cls, buyer_id):
         product_cursor = cls().product_coll.find({
-            "is_purchased" : True,
-            "buyer._id" : buyer_id
+            "buyer._id" : buyer_id,
+            "state": "SOLD"
         })
         product_list = [product async for product in product_cursor]
         return product_list
@@ -177,3 +177,15 @@ class Product:
             raise FailToDeleteProductEx(product_id)
 
         return deleted_product.deleted_count
+
+
+    @classmethod
+    async def buyer_safe_or_not(cls, product_id: str, buyer_safe: bool):
+        updated_result = await cls().product_coll.find_one_and_update(
+            {"_id": product_id}, {
+                "$set": {"buyer_safe": buyer_safe}
+            }
+        )
+
+        product = await cls().get_by_id(product_id)
+        return product
