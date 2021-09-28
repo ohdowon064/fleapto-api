@@ -13,6 +13,7 @@ class UserSchema(BaseSchema):
     name: str = Field(...)
     nickname: str = Field(...)
     address: str = Field(...)
+    balance: float = Field(default=0)
 
 
 class State(str, Enum):

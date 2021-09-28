@@ -25,6 +25,10 @@ class UserToken(BaseModel):
     nickname: str = None
     address: str = None
 
+class UserUpdate(BaseModel):
+    # nickname: str = None
+    balance: float = None
+
 
 class Token(BaseModel):
     Authorization: str = None

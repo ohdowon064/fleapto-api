@@ -189,3 +189,19 @@ class Product:
 
         product = await cls().get_by_id(product_id)
         return product
+
+    @classmethod
+    async def get_pending_list(cls, buyer_id: str):
+        pending_cursor = cls().db.get_collection("pending").find(
+            {"buyer._id": buyer_id, "state": State.PENDING}
+        )
+
+        product_ids = [product["product_id"] async for product in pending_cursor]
+
+        product_cursor = cls().product_coll.find(
+            {"_id": {"$in": product_ids}}
+        )
+
+        pending_list = [product async for product in product_cursor]
+
+        return pending_list

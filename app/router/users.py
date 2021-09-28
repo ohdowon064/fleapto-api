@@ -1,15 +1,16 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Body
 from starlette import status
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from app.model import UserToken
+from app.database.schema import UserSchema
+from app.model import UserToken, UserUpdate
 from app.repository.User import User
 
 router = APIRouter()
 
-@router.get("/me", response_model=UserToken)
-async def get_user(request: Request):
+@router.get("/me", response_model=UserSchema)
+async def get_me(request: Request):
     """
     get my info
     :param request:
@@ -24,5 +25,17 @@ async def get_user(request: Request):
                 "user" : user
             }
         )
+
     return user_info
 
+
+@router.put("/user", response_model=UserToken)
+async def update_user(request: Request,
+                      update_info: UserUpdate = Body(...)):
+    user = request.state.user
+    updated_user = await User.update(user.id, update_info)
+
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content=updated_user
+    )

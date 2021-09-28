@@ -121,3 +121,29 @@ async def test_buyer_safe_or_not(client: AsyncClient, login, db_product):
 
     assert res.status_code == 200, res_body
     assert res_body["buyer_safe"] == buyer_safe
+
+@pytest.mark.asyncio
+async def test_get_pending_list(client: AsyncClient, login, db_product):
+    """
+    구매대기 내역 조회 테스트
+    :param client:
+    :param login:
+    :param db_product:
+    :return:
+    """
+
+    product_state = dict(state="PENDING")
+    res = await client.put(f"/api/product?product_id={db_product['_id']}", json=product_state, headers=login)
+    res_body = res.json()
+
+    assert res.status_code == 200, res_body
+    assert res_body["state"] == "PENDING"
+
+    pending_res = await client.get("/api/product/pending_list", headers=login)
+    pending_body = pending_res.json()
+
+    print("출력이 되니??????????????")
+    print(pending_body)
+
+    assert pending_res.status_code == 200, pending_body
+    assert pending_body[0]["state"] == "PENDING", pending_body

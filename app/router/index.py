@@ -1,14 +1,19 @@
 from datetime import datetime
 
 from fastapi import APIRouter, status, Response, Request
-from starlette.responses import HTMLResponse
+from starlette.responses import HTMLResponse, JSONResponse
 from starlette.templating import Jinja2Templates
+
+from app.database.connect import Mongo
+from app.utils.data_utils import InitDB
 
 router = APIRouter()
 
 
 @router.get("/", response_class=HTMLResponse)
-async def index():
+async def index(request: Request):
+    url = request.url
+    print(f"url::::::::{url}")
     current_html = """
     <!DOCTYPE html>
     <html lang="ko">
@@ -46,3 +51,13 @@ async def index():
     </html>
     """
     return HTMLResponse(content=current_html, status_code=200)
+
+
+@router.delete("/init")
+async def init():
+    await InitDB().init_db()
+
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content=dict(msg="데이터베이스를 초기화했습니다.")
+    )

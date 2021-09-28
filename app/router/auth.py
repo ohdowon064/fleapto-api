@@ -46,7 +46,7 @@ async def register(reg_info: UserRegister):
     )
 
     jwt_token = create_access_token(
-        data=UserToken(**new_user).dict(exclude={"pw", "created_at"})
+        data=UserToken(**new_user).dict(exclude={"pw", "created_at", "balance"})
     )
     token = dict(Authorization=f"JWT {jwt_token}")
 

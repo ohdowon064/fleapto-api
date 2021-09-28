@@ -4,7 +4,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase, AsyncIOMotorCollection
 from app.database.connect import Mongo
 from app.database.schema import UserSchema
 from app.errors.exceptions import AlreadyExistEmailEx
-from app.model import UserToken
+from app.model import UserToken, UserUpdate
 
 
 class User:
@@ -44,3 +44,16 @@ class User:
     async def delete_by_id(cls, id: str):
         deleted_user = await cls().user_coll.find_one_and_delete({"_id": id})
         return deleted_user
+
+    @classmethod
+    async def update(cls, user_id: str, update_info: UserUpdate):
+        prev_user = await cls().user_coll.find_one_and_update(
+            {"_id": user_id}, {
+                "$set": {**update_info.dict()}
+            }
+        )
+
+        updated_user = await cls().get_by_id(user_id)
+
+        return updated_user
+

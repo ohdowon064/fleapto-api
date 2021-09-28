@@ -66,3 +66,14 @@ async def delete_product(request: Request, product_id: str):
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content=dict(msg=f"{deleted_count}개의 상품을 성공적으로 삭제했습니다."))
+
+@router.get("/product/pending_list", response_model=List[ProductSchema])
+async def get_pending_list(request: Request):
+    user = request.state.user
+
+    pending_list = await Product.get_pending_list(user.id)
+
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content=pending_list
+    )
