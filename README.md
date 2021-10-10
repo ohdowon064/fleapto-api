@@ -12,7 +12,7 @@
 > uvicorn main:app --reload
 ```
 
-## Start AWS Lambda with serverless node package
+## Start in AWS Lambda with serverless node package
 ```
 > npm install -g serverless
 > npm install
